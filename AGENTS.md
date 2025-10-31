@@ -4,18 +4,20 @@ This document provides explicit coding guidelines, constraints, and best practic
 
 Your primary goal is to produce code that is **simple, readable, and easy for humans to maintain.**
 
----
+## Directory Structure
 
-## 1. Guiding Principles
+- `index.html`
+- `scripts.js`
+- `main.css`
+
+## Guiding Principles
 
 - **Clarity Over Cleverness:** Write straightforward code that is easy to understand. Avoid complex one-liners or obscure language features.
 - **Single Responsibility Principle (SRP):** Every function and module should have one, and only one, reason to change.
 - **Don't Repeat Yourself (DRY):** Avoid duplicating code. Use functions and modules to create reusable logic.
 - **Modularity:** Keep different parts of the application separate. Changes to the UI should not break the game logic.
 
----
-
-## 2. Code Architecture
+## Code Architecture
 
 As specified in `REQ-NFR-001`, the code SHALL be organized into logical modules. Adhere to the following structure:
 
@@ -27,9 +29,7 @@ As specified in `REQ-NFR-001`, the code SHALL be organized into logical modules.
 
 This modular approach ensures that the application is easy to debug, maintain, and extend.
 
----
-
-## 3. JavaScript Best Practices
+## JavaScript Best Practices
 
 - **Use Modern Syntax:** Use `const` for variables that are not reassigned and `let` for variables that are. Avoid using `var` to prevent scope issues.
 - **Avoid Global Variables:** Encapsulate all code within modules or immediately-invoked function expressions (IIFEs) to avoid polluting the global namespace.
@@ -47,16 +47,10 @@ This modular approach ensures that the application is easy to debug, maintain, a
   }
   ```
 
----
 
-## 4. Technology Stack Constraints
+## Technology Stack Constraints
 
 ### Allowed Technologies
-
-- **HTML5** - Semantic markup only
-- **CSS3** - Bootstrap 5.3 is permitted but not required.
-- **Vanilla JavaScript (ES6+)** - No frameworks or libraries.
-- **Web APIs:** `localStorage`, Web Audio API (optional).
 
 ### Prohibited Technologies
 
@@ -69,10 +63,8 @@ This modular approach ensures that the application is easy to debug, maintain, a
 ❌ **NO** Server-side code or backend APIs.
 ❌ **NO** WebAssembly or native modules.
 
----
+## Styling and Script Guidelines
 
-## 5. File Structure
-
-- `index.html`
-- `scripts.js`
-- `main.css`
+- **Bootstrap Reuse:** Always use Bootstrap classes for styling and layout. Only create custom CSS classes if no Bootstrap class meets the requirement.
+- **No Inline Styles:** Do not use inline styles or inline CSS. All custom styles must go in `main.css`.
+- **Reusable Scripts:** Use `scripts.js` as the main script file for reusable code. For maintainability, you may add additional `.css` and `.js` files if needed.
