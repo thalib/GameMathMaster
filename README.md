@@ -11,7 +11,7 @@
 ### ✨ Key Features
 
 
-For the complete requirements and technical specification, see [SPEC.md](./SPEC.md).
+For the complete requirements and technical specification, see **[SPEC.md](./SPEC.md)**.
 ---
 ## 🎯 Educational Philosophy
 
