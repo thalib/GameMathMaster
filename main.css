@@ -1,0 +1,31 @@
+/* Custom styles for Math Master */
+body {
+    font-family: sans-serif;
+}
+
+.level-btn {
+    width: 100px;
+    height: 100px;
+    margin: 10px;
+}
+
+.badge-container {
+    padding: 15px;
+    text-align: center;
+}
+
+.badge-icon {
+    font-size: 3rem;
+}
+
+.font-small {
+    font-size: 0.8rem;
+}
+
+.font-medium {
+    font-size: 1rem;
+}
+
+.font-large {
+    font-size: 1.2rem;
+}
