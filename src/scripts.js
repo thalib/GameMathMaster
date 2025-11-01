@@ -236,15 +236,15 @@ const QuestionGenerator = (() => {
       numbers: 2,
     },
     {
-      name: "Addition: 3-4 digit × 3-4 numbers",
-      type: "add",
-      digits: [3, 4],
-      numbers: [3, 4],
-    },
-    {
       name: "Addition: 2 digit × 3-4 numbers",
       type: "add",
       digits: 2,
+      numbers: [3, 4],
+    },
+    {
+      name: "Addition: 3-4 digit × 3-4 numbers",
+      type: "add",
+      digits: [3, 4],
       numbers: [3, 4],
     },
     {
@@ -304,22 +304,10 @@ const QuestionGenerator = (() => {
       numbers: 2,
     },
     {
-        name: "Multiplication: 2 digit × 3-4 numbers",
-        type: "mul",
-        digits: 2,
-        numbers: [3, 4],
-    },
-    {
         name: "Multiplication: 3-4 digit × 2 numbers",
         type: "mul",
         digits: [3, 4],
         numbers: 2,
-    },
-    {
-        name: "Multiplication: 3-4 digit × 3-4 numbers",
-        type: "mul",
-        digits: [3, 4],
-        numbers: [3, 4],
     },
     { name: "Division: 1 digit ÷ 1 digit", type: "div", digits: 1, numbers: 2 },
     {
@@ -491,15 +479,20 @@ const AppController = ((
     const userAnswer = parseInt(answerInput.value);
     const correctAnswer = GameState.getCurrentQuestion().answer;
 
+    const correctMessages = ["Wow!", "Super!", "Excellent!", "Great!"];
+    const incorrectMessages = ["Nice try!", "Try again!"];
+
     if (userAnswer === correctAnswer) {
       const newState = ScoreManager.correctAnswer(GameState.getState());
       GameState.setState(newState);
-      UIController.showFeedback("Correct!", true);
+      const message = correctMessages[Math.floor(Math.random() * correctMessages.length)];
+      UIController.showFeedback(message, true);
     } else {
       const newState = ScoreManager.incorrectAnswer(GameState.getState());
       GameState.setState(newState);
+      const message = incorrectMessages[Math.floor(Math.random() * incorrectMessages.length)];
       UIController.showFeedback(
-        `Try again! The correct answer was ${correctAnswer}.`,
+        `${message} The correct answer was ${correctAnswer}.`,
         false
       );
     }
