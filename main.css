@@ -1,31 +1,109 @@
-/* Custom styles for Math Master */
+/* General Body Styles */
 body {
-    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f0f8ff; /* Lighter, kid-friendly background */
+    font-size: 1.2rem; /* Larger base font size */
 }
 
-.level-btn {
-    width: 100px;
-    height: 100px;
-    margin: 10px;
+main {
+    flex: 1;
 }
 
-.badge-container {
-    padding: 15px;
-    text-align: center;
+/* Header Navigation Tabs */
+.nav-btn {
+    text-decoration: none;
+    color: #6c757d; /* Muted gray for inactive tabs */
+    transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.badge-icon {
-    font-size: 3rem;
+.nav-btn:hover {
+    transform: scale(1.1);
 }
 
-.font-small {
-    font-size: 0.8rem;
+.nav-btn[data-tab="home"].active { color: #0d6efd; /* Blue for Home */ }
+.nav-btn[data-tab="levels"].active { color: #198754; /* Green for Levels */ }
+.nav-btn[data-tab="settings"].active { color: #fd7e14; /* Orange for Settings */ }
+
+
+.nav-btn.active {
+    font-weight: bold;
 }
 
-.font-medium {
-    font-size: 1rem;
+/* Question & Answer Card */
+.question-container .card {
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    border: none;
 }
 
-.font-large {
-    font-size: 1.2rem;
+/* Container for the answer input and button */
+.answer-form-container {
+    max-width: 250px;
+}
+
+/* Style for the submit button */
+#submit-answer {
+    border-radius: 15px; /* Rounded corners */
+    background-color: #28a745; /* Cheerful green */
+    border: none;
+    font-weight: bold;
+}
+
+#submit-answer:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+/* Multi-line question format */
+.question-multiline {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: 'Courier New', Courier, monospace;
+    padding-right: 20%;
+}
+
+.question-multiline .operand {
+    display: block;
+}
+
+.question-multiline .operator-line {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.question-multiline .operator {
+    margin-right: 10px;
+}
+
+.question-multiline .bottom-operand {
+    border-bottom: 2px solid #000;
+    width: 100%;
+    text-align: right;
+}
+
+
+/* Levels Tab */
+.list-group-item {
+    cursor: pointer;
+    border-radius: 10px !important; /* Rounded corners for level items */
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.list-group-item:hover {
+    background-color: #e9ecef;
+}
+
+.list-group-item.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* General Feedback Text */
+#feedback {
+    min-height: 30px;
+    font-weight: bold;
 }
