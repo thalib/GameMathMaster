@@ -487,6 +487,14 @@ const AppController = ((
       GameState.setState(newState);
       const message = correctMessages[Math.floor(Math.random() * correctMessages.length)];
       UIController.showFeedback(message, true);
+
+      const canvas = document.querySelector('#confetti-canvas');
+      const myConfetti = confetti.create(canvas, { resize: true });
+      myConfetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+      });
     } else {
       const newState = ScoreManager.incorrectAnswer(GameState.getState());
       GameState.setState(newState);
