@@ -183,6 +183,18 @@ const UIController = (() => {
     clearAnswer: () => {
       document.querySelector(DOMstrings.answerElement).value = "";
     },
+    setButtonState: (state) => {
+        const btn = document.querySelector(DOMstrings.submitButton);
+        if (state === 'submit') {
+            btn.innerHTML = 'Submit <i class="bi bi-arrow-return-left"></i>';
+            btn.disabled = false;
+        } else if (state === 'next') {
+            btn.textContent = 'Next ->';
+            btn.disabled = false;
+        } else if (state === 'disabled') {
+            btn.disabled = true;
+        }
+    }
   };
 })();
 
@@ -474,6 +486,16 @@ const AppController = ((
       UIController.getDOMstrings().submitButton
     );
 
+    // If button is in "Next ->" state, start a new round.
+    if (submitButton.textContent === "Next ->") {
+      startNewRound();
+      UIController.setButtonState('submit');
+      answerInput.disabled = false;
+      answerInput.focus();
+      return;
+    }
+
+
     if (answerInput.value === "") return; // Don't do anything if input is empty
 
     const userAnswer = parseInt(answerInput.value);
@@ -481,6 +503,9 @@ const AppController = ((
 
     const correctMessages = ["Wow!", "Super!", "Excellent!", "Great!"];
     const incorrectMessages = ["Nice try!", "Try again!"];
+
+    answerInput.disabled = true;
+    UIController.setButtonState('disabled');
 
     if (userAnswer === correctAnswer) {
       const newState = ScoreManager.correctAnswer(GameState.getState());
@@ -495,6 +520,15 @@ const AppController = ((
           spread: 70,
           origin: { y: 0.6 }
       });
+
+      setTimeout(() => {
+        startNewRound();
+        // Re-enable for next question
+        answerInput.disabled = false;
+        UIController.setButtonState('submit');
+        answerInput.focus();
+      }, 2000); // 2 second delay
+
     } else {
       const newState = ScoreManager.incorrectAnswer(GameState.getState());
       GameState.setState(newState);
@@ -503,21 +537,12 @@ const AppController = ((
         `${message} Correct Answer: ${correctAnswer}.`,
         false
       );
+
+      // Change button to "Next ->" and re-enable it. Input remains disabled.
+      UIController.setButtonState('next');
     }
 
     UIController.updateScore(GameState.getCurrentScore());
-
-    // Disable controls to prevent multiple submissions
-    answerInput.disabled = true;
-    submitButton.disabled = true;
-
-    setTimeout(() => {
-      startNewRound();
-      // Re-enable for next question
-      answerInput.disabled = false;
-      submitButton.disabled = false;
-      answerInput.focus();
-    }, 2000); // 2 second delay
   };
 
   const init = () => {
