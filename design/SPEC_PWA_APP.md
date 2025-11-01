@@ -1,40 +1,58 @@
-## 1. Progressive Web App (PWA)
+## Requirements for Converting GameMathMaster to a Fully Static Installable PWA Mobile App
 
-This is the simplest approach since your game is already web-based:
-- Add a manifest.json file and service worker to your existing code
-- Users can "install" it directly from their browser
-- Works on both iOS and Android
-- No app store approval needed
-- Instant updates without resubmitting
+### General Goals
+- The app must be installable as a Progressive Web App (PWA) on mobile devices and desktops.
+- The app must work fully offline after installation (no internet required for any feature).
+- All assets, scripts, and data must be bundled and cached locally.
+- The app must remain static (no server-side code, no external APIs).
 
-## 2. **Capacitor by Ionic** - Most Popular
-- Wraps your web app into native iOS/Android apps
-- Minimal code changes needed
-- Access to native device features (camera, sensors, etc.)
-- Can publish to App Store and Google Play
-- Good performance for games
+### Technical Requirements
+1. **Manifest File**
+	- Create a `manifest.json` in `src/` with:
+	  - App name, short name, description
+	  - App icons (at least 192x192 and 512x512 PNG)
+	  - Display mode: `standalone`
+	  - Theme and background colors
+	  - Start URL: `index.html`
 
-## 3. **Apache Cordova/PhoneGap**
-- Similar to Capacitor but older technology
-- Wraps HTML/CSS/JS into native apps
-- Large plugin ecosystem
+2. **Service Worker**
+	- Add a `service-worker.js` in `src/` to:
+	  - Cache all static assets (`index.html`, `main.css`, `scripts.js`, icons, manifest)
+	  - Serve cached assets when offline
+	  - Use the Cache API for efficient asset management
+	  - Handle updates gracefully (prompt user to refresh if new version is available)
 
-## 4. **React Native WebView** (if you want more control)
-- Embeds your game in a native shell
-- More flexibility for native features
-- Slightly more complex setup
+3. **Offline Support**
+	- Ensure all game logic, UI, and assets are available locally
+	- No external requests after installation
 
-## **Quick Steps to Get Started (PWA - Easiest):**
+4. **App Shell Architecture**
+	- Structure the app so the UI loads instantly from cache
+	- All game features must be accessible without network
 
-1. **Add a manifest.json** to your project
-2. **Create a service worker** for offline functionality
-3. **Add meta tags** for mobile optimization
-4. **Test on mobile browsers**
-5. Users can install directly from browser!
+5. **Bootstrap and Styling**
+	- Continue using Bootstrap classes for layout and styling
+	- Bundle Bootstrap CSS locally if not already
 
-**Would you like me to:**
-- Help you create a PWA version with the manifest and service worker files?
-- Show you how to set up Capacitor to package it for app stores?
-- Create a mobile-optimized version of your game?
+6. **No External Dependencies**
+	- Remove or bundle any CDN or external resources
+	- All fonts, images, and libraries must be local
 
-Let me know which approach interests you most!
+7. **Install Prompt**
+	- Add logic to prompt users to install the app (using PWA install events)
+
+8. **Testing**
+	- Test installation and offline usage on Android, iOS, and desktop browsers
+	- Validate PWA compliance using Lighthouse or similar tools
+
+### File Changes Needed
+- `src/manifest.json`: New file
+- `src/service-worker.js`: New file
+- `src/index.html`: Link manifest, register service worker, add install prompt logic
+- `src/main.css`, `src/scripts.js`: Ensure all assets are referenced locally
+
+### Acceptance Criteria
+- App installs and launches as a standalone mobile app
+- All features work offline
+- No network requests after installation
+- Passes PWA audits (Lighthouse)
