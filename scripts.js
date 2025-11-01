@@ -1,512 +1,356 @@
-// Main script file for Math Master
-(function() {
-    'use strict';
+// --- MODULES ---
 
-    /**
-     * GameState module
-     * Manages all application state.
-     */
-    const GameState = (function() {
-        let state = {
-            currentLevel: 1,
-            totalScore: 0,
-            highestStreak: 0,
-            unlockedLevels: [1],
-            earnedBadges: [],
-            starsPerLevel: {},
-            totalProblemsAttempted: 0,
-            totalCorrectAnswers: 0,
-            streak: 0,
-            hintsRemaining: 2,
-            fontSize: 'medium'
-        };
+const GameState = (() => {
+    let state = {
+        playerName: '',
+        currentLevel: 1,
+        currentScore: 0,
+        streak: 0,
+        levels: [],
+        currentQuestion: null
+    };
 
-        function getState() {
-            return state;
-        }
-
-        function setState(newState) {
+    return {
+        getState: () => state,
+        setState: (newState) => {
             state = { ...state, ...newState };
+        },
+        getLevels: () => state.levels,
+        setLevels: (levels) => {
+            state.levels = levels;
+        },
+        getCurrentLevel: () => state.currentLevel,
+        setCurrentLevel: (level) => {
+            state.currentLevel = level;
+        },
+        getCurrentScore: () => state.currentScore,
+        setCurrentScore: (score) => {
+            state.currentScore = score;
+        },
+        getStreak: () => state.streak,
+        setStreak: (streak) => {
+            state.streak = streak;
+        },
+        getPlayerName: () => state.playerName,
+        setPlayerName: (name) => {
+            state.playerName = name;
+        },
+        getCurrentQuestion: () => state.currentQuestion,
+        setCurrentQuestion: (question) => {
+            state.currentQuestion = question;
         }
+    };
+})();
 
-        return {
-            getState,
-            setState
-        };
-    })();
+const UIController = (() => {
+    const DOMstrings = {
+        tabs: '.tab-content',
+        navButtons: '.nav-btn',
+        scoreElement: '#current-score',
+        levelElement: '#current-level',
+        questionElement: '#question',
+        answerElement: '#answer',
+        submitButton: '#submit-answer',
+        feedbackElement: '#feedback',
+        levelListElement: '#level-list',
+        settingsLevelElement: '#settings-level',
+        settingsScoreElement: '#settings-score',
+        playerNameInput: '#player-name',
+        resetButton: '#reset-progress'
+    };
 
-    /**
-     * StorageManager module
-     * Handles saving and loading game data to and from localStorage.
-     */
-    const StorageManager = (function() {
-        const STORAGE_KEY = 'mathMasterSaveData';
+    return {
+        getDOMstrings: () => DOMstrings,
+        showTab: (tabId) => {
+            document.querySelectorAll(DOMstrings.tabs).forEach(tab => tab.style.display = 'none');
+            document.querySelector(`#${tabId}`).style.display = 'block';
+            document.querySelectorAll(DOMstrings.navButtons).forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tabId) {
+                    btn.classList.add('active');
+                }
+            });
+        },
+        updateScore: (score) => {
+            document.querySelector(DOMstrings.scoreElement).textContent = score;
+            document.querySelector(DOMstrings.settingsScoreElement).textContent = score;
+        },
+        updateLevel: (level) => {
+            document.querySelector(DOMstrings.levelElement).textContent = level;
+             document.querySelector(DOMstrings.settingsLevelElement).textContent = level;
+        },
+        displayQuestion: (question) => {
+            const questionEl = document.querySelector(DOMstrings.questionElement);
+            questionEl.innerHTML = ''; // Clear previous content
 
-        function saveGame(gameState) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+            // Use multi-line format for 2-operand addition and subtraction
+            if ((question.operator === '+' || question.operator === '−') && question.operands.length === 2) {
+                const [num1, num2] = question.operands;
+                const html = `
+                    <div class="question-multiline">
+                        <span class="operand">${num1}</span>
+                        <div class="operator-line">
+                            <span class="operator">${question.operator}</span>
+                            <span class="bottom-operand">${num2}</span>
+                        </div>
+                    </div>`;
+                questionEl.innerHTML = html;
+            } else { // Use single-line for everything else
+                const questionText = question.operands.join(` ${question.operator} `);
+                questionEl.textContent = questionText;
+            }
+
+            document.querySelector(DOMstrings.answerElement).value = '';
+            document.querySelector(DOMstrings.answerElement).focus();
+        },
+        showFeedback: (message, isCorrect) => {
+            const feedbackEl = document.querySelector(DOMstrings.feedbackElement);
+            feedbackEl.textContent = message;
+            feedbackEl.className = 'mt-3 fs-4';
+            feedbackEl.classList.add(isCorrect ? 'text-success' : 'text-danger');
+            setTimeout(() => feedbackEl.textContent = '', 2000);
+        },
+        populateLevels: (levels) => {
+            const levelListEl = document.querySelector(DOMstrings.levelListElement);
+            levelListEl.innerHTML = '';
+            levels.forEach((level, index) => {
+                const levelEl = document.createElement('a');
+                levelEl.href = '#';
+                levelEl.className = 'list-group-item list-group-item-action';
+                levelEl.dataset.level = index + 1;
+                levelEl.textContent = level.name;
+                levelListEl.appendChild(levelEl);
+            });
+        },
+        updateSettings: (level, score, name) => {
+            document.querySelector(DOMstrings.settingsLevelElement).textContent = level;
+            document.querySelector(DOMstrings.settingsScoreElement).textContent = score;
+            document.querySelector(DOMstrings.playerNameInput).value = name;
+        },
+        clearAnswer: () => {
+            document.querySelector(DOMstrings.answerElement).value = '';
         }
+    };
+})();
 
-        function loadGame() {
-            const savedData = localStorage.getItem(STORAGE_KEY);
-            return savedData ? JSON.parse(savedData) : null;
-        }
-
-        function resetProgress() {
+const StorageManager = (() => {
+    const STORAGE_KEY = 'mathMasterState';
+    return {
+        saveGameState: (state) => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        },
+        loadGameState: () => {
+            const stateJSON = localStorage.getItem(STORAGE_KEY);
+            return stateJSON ? JSON.parse(stateJSON) : null;
+        },
+        clearGameState: () => {
             localStorage.removeItem(STORAGE_KEY);
         }
+    };
+})();
 
-        return {
-            saveGame,
-            loadGame,
-            resetProgress
-        };
-    })();
-
-    /**
-     * QuestionGenerator module
-     * Responsible for creating and returning new math problems.
-     */
-    const QuestionGenerator = (function() {
-        /**
-         * Generates a random integer between two values, inclusive.
-         * @param {number} min The minimum value.
-         * @param {number} max The maximum value.
-         * @returns {number} A random integer between min and max.
-         */
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+const ScoreManager = (() => {
+    return {
+        correctAnswer: (state) => {
+            const newScore = state.currentScore + 10;
+            const newStreak = state.streak + 1;
+            return { ...state, currentScore: newScore, streak: newStreak };
+        },
+        incorrectAnswer: (state) => {
+            return { ...state, streak: 0 };
         }
+    };
+})();
 
-        /**
-         * Generates a question based on the current level.
-         * @param {number} level The current game level.
-         * @returns {object} An object with the question string and the answer.
-         */
-        function generateQuestion(level) {
-            let operand1, operand2, operator, question, answer;
+const QuestionGenerator = (() => {
+    const levels = [
+        { name: 'Addition: 1 digit × 2 numbers', type: 'add', digits: 1, numbers: 2 },
+        { name: 'Addition: 2 digit × 2 numbers', type: 'add', digits: 2, numbers: 2 },
+        { name: 'Addition: 2 digit × 3-4 numbers', type: 'add', digits: 2, numbers: [3, 4] },
+        { name: 'Addition: 3-4 digit × 2 numbers', type: 'add', digits: [3, 4], numbers: 2 },
+        { name: 'Addition: 3-4 digit × 3-4 numbers', type: 'add', digits: [3, 4], numbers: [3, 4] },
+        { name: 'Subtraction: 1 digit × 2 numbers', type: 'sub', digits: 1, numbers: 2 },
+        { name: 'Subtraction: 2 digit × 2 numbers', type: 'sub', digits: 2, numbers: 2 },
+        { name: 'Subtraction: 2 digit × 2 numbers (borrowing)', type: 'sub', digits: 2, numbers: 2, borrowing: true },
+        { name: 'Subtraction: 3-4 digit × 2 numbers', type: 'sub', digits: [3, 4], numbers: 2 },
+        { name: 'Subtraction: 3-4 digit × 2 numbers (borrowing)', type: 'sub', digits: [3, 4], numbers: 2, borrowing: true },
+        { name: 'Multiplication: 1 digit × 1 digit', type: 'mul', digits: 1, numbers: 2 },
+        { name: 'Multiplication: 2 digit × 1 digit', type: 'mul', digits: [2, 1], numbers: 2 },
+        { name: 'Multiplication: 2 digit × 2 digit', type: 'mul', digits: 2, numbers: 2 },
+        { name: 'Multiplication: 3-4 digit × 1 digit', type: 'mul', digits: [[3, 4], 1], numbers: 2 },
+        { name: 'Division: 1 digit ÷ 1 digit', type: 'div', digits: 1, numbers: 2 },
+        { name: 'Division: 2 digit ÷ 1 digit', type: 'div', digits: [2, 1], numbers: 2 },
+        { name: 'Division: 2 digit ÷ 2 digit', type: 'div', digits: 2, numbers: 2 }
+    ];
 
-            let min, max;
-            if (level >= 1 && level <= 10) {
-                min = 1; max = 10;
-            } else if (level >= 11 && level <= 25) {
-                min = 10; max = 50;
-            } else if (level >= 26 && level <= 40) {
-                min = 50; max = 100;
-            } else { // Levels 41-50
-                min = 100; max = 200;
-            }
+    const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const getValue = (val) => Array.isArray(val) ? getRandomInt(val[0], val[1]) : val;
+    const genNum = (digits) => {
+        const d = getValue(digits);
+        if (d === 1) return getRandomInt(0, 9);
+        return getRandomInt(Math.pow(10, d - 1), Math.pow(10, d) - 1);
+    }
 
-            let operators;
-            if (level >= 1 && level <= 10) {
-                operators = ['+', '-'];
-            } else if (level >= 11 && level <= 25) {
-                operators = ['+', '-', '*'];
-            } else { // Levels 26-50
-                operators = ['+', '-', '*', '/'];
-            }
-            operator = operators[getRandomInt(0, operators.length - 1)];
+    return {
+        getLevels: () => levels,
+        generateQuestion: (levelIndex) => {
+            const level = levels[levelIndex - 1];
+            let operands = [];
+            let answer;
 
-            operand1 = getRandomInt(min, max);
-            operand2 = getRandomInt(min, max);
+            const numOperands = getValue(level.numbers);
 
-            if (operator === '-') {
-                if (operand1 < operand2) {
-                    [operand1, operand2] = [operand2, operand1]; // Swap to avoid negative answers
-                }
-            }
-
-            if (operator === '/') {
-                // Ensure division results in a whole number and operands are within range.
-                const possibleResults = [];
-                for (let i = 2; i <= Math.floor(max / min); i++) {
-                    possibleResults.push(i);
-                }
-
-                if (possibleResults.length > 0) {
-                    const result = possibleResults[getRandomInt(0, possibleResults.length - 1)];
-                    const divisorRangeMin = min;
-                    const divisorRangeMax = Math.floor(max / result);
-                    operand2 = getRandomInt(divisorRangeMin, divisorRangeMax);
-                    operand1 = operand2 * result;
-                } else {
-                    // Fallback to multiplication if no valid division problem can be generated
-                    operator = '*';
-                }
-            }
-
-            switch (operator) {
-                case '+':
-                    answer = operand1 + operand2;
-                    question = `${operand1} + ${operand2}`;
+            switch (level.type) {
+                case 'add':
+                    for (let i = 0; i < numOperands; i++) {
+                        operands.push(genNum(level.digits));
+                    }
+                    answer = operands.reduce((sum, num) => sum + num, 0);
                     break;
-                case '-':
-                    answer = operand1 - operand2;
-                    question = `${operand1} - ${operand2}`;
+
+                case 'sub':
+                    let num1, num2;
+                    if (level.borrowing) {
+                        do {
+                            num1 = genNum(level.digits);
+                            num2 = genNum(level.digits);
+                        } while (num1 <= num2 || !String(num1).split('').some((digit, i) => digit < String(num2).padStart(String(num1).length, '0')[i]));
+                    } else {
+                        num1 = genNum(level.digits);
+                        num2 = genNum(level.digits);
+                        if (num1 < num2) [num1, num2] = [num2, num1];
+                    }
+                    operands = [num1, num2];
+                    answer = num1 - num2;
                     break;
-                case '*':
-                    answer = operand1 * operand2;
-                    question = `${operand1} × ${operand2}`;
+
+                case 'mul':
+                    const digits1 = Array.isArray(level.digits) ? level.digits[0] : level.digits;
+                    const digits2 = Array.isArray(level.digits) ? level.digits[1] : level.digits;
+                    operands = [genNum(digits1), genNum(digits2)];
+                    answer = operands[0] * operands[1];
                     break;
-                case '/':
-                    answer = operand1 / operand2;
-                    question = `${operand1} ÷ ${operand2}`;
+
+                case 'div':
+                    const divisorDigits = Array.isArray(level.digits) ? level.digits[1] : level.digits;
+                    const answerDigits = Array.isArray(level.digits) ? level.digits[0] : level.digits;
+                    const divisor = genNum(divisorDigits);
+                    answer = genNum(answerDigits);
+                    operands = [divisor * answer, divisor];
                     break;
             }
 
-            return { question, answer };
+            return {
+                operands,
+                operator: { add: '+', sub: '−', mul: '×', div: '÷' }[level.type],
+                answer
+            };
         }
+    };
+})();
 
-        return {
-            generateQuestion
-        };
-    })();
+const AppController = ((GameState, UIController, StorageManager, ScoreManager, QuestionGenerator) => {
+    const setupEventListeners = () => {
+        const DOM = UIController.getDOMstrings();
 
-    /**
-     * ScoreManager module
-     * Manages scoring logic, including awarding points and calculating streaks.
-     */
-    const ScoreManager = (function() {
-        /**
-         * Updates the score based on the answer's correctness.
-         * @param {object} gameState The current state of the game.
-         * @param {boolean} isCorrect Whether the answer was correct.
-         * @returns {object} An object with the updated score and streak.
-         */
-        function updateScore(gameState, isCorrect) {
-            let { totalScore, streak } = gameState;
-
-            if (isCorrect) {
-                streak++;
-                let points = 10;
-                if (streak >= 10) {
-                    points *= 3;
-                } else if (streak >= 5) {
-                    points *= 2;
-                } else if (streak >= 3) {
-                    points *= 1.5;
-                }
-                totalScore += points;
-            } else {
-                streak = 0;
-            }
-
-            return { totalScore, streak };
-        }
-
-        return {
-            updateScore
-        };
-    })();
-
-    /**
-     * UIController module
-     * Handles all DOM manipulation.
-     */
-    const LevelManager = (function() {
-        const TOTAL_LEVELS = 50;
-
-        function checkLevelUnlock(gameState) {
-            const { currentLevel, totalProblemsAttempted, totalCorrectAnswers, unlockedLevels } = gameState;
-            const accuracy = totalProblemsAttempted > 0 ? (totalCorrectAnswers / totalProblemsAttempted) * 100 : 0;
-
-            if (accuracy >= 60 && currentLevel < TOTAL_LEVELS && !unlockedLevels.includes(currentLevel + 1)) {
-                gameState.unlockedLevels.push(currentLevel + 1);
-            }
-        }
-
-        return {
-            TOTAL_LEVELS,
-            checkLevelUnlock
-        };
-    })();
-
-    const AchievementManager = (function() {
-        const achievements = [
-            { id: "first_steps", name: "First Steps", description: "Complete Level 1", check: (gs) => gs.currentLevel > 1 },
-            { id: "streak_master", name: "Streak Master", description: "Achieve a 10-answer streak", check: (gs) => gs.highestStreak >= 10 },
-            { id: "persistent_player", name: "Persistent Player", description: "Attempt 100 total problems", check: (gs) => gs.totalProblemsAttempted >= 100 },
-        ];
-
-        function checkAchievements(gameState) {
-            const newBadges = [];
-            achievements.forEach(ach => {
-                if (!gameState.earnedBadges.includes(ach.id) && ach.check(gameState)) {
-                    gameState.earnedBadges.push(ach.id);
-                    newBadges.push(ach);
-                }
+        document.querySelectorAll(DOM.navButtons).forEach(btn => {
+            btn.addEventListener('click', () => {
+                UIController.showTab(btn.dataset.tab);
             });
-            return newBadges;
-        }
-
-        return {
-            achievements,
-            checkAchievements
-        };
-    })();
-
-    const UIController = (function() {
-        const DOM = {
-            score: document.getElementById('score'),
-            level: document.getElementById('level'),
-            streak: document.getElementById('streak'),
-            question: document.getElementById('question'),
-            answer: document.getElementById('answer'),
-            submit: document.getElementById('submit'),
-            feedback: document.getElementById('feedback'),
-            levelSelectBtn: document.getElementById('level-select-btn'),
-            achievementsBtn: document.getElementById('achievements-btn'),
-            settingsBtn: document.getElementById('settings-btn'),
-            gameScreen: document.getElementById('game-screen'),
-            levelSelectScreen: document.getElementById('level-select-screen'),
-            achievementsScreen: document.getElementById('achievements-screen'),
-            settingsScreen: document.getElementById('settings-screen'),
-            levelGrid: document.getElementById('level-grid'),
-            achievementsGrid: document.getElementById('achievements-grid'),
-            resetProgressBtn: document.getElementById('reset-progress-btn'),
-            fontSize: document.getElementById('font-size'),
-            hintBtn: document.getElementById('hint-btn'),
-            hintsRemaining: document.getElementById('hints-remaining'),
-            notification: document.getElementById('notification')
-        };
-
-        function updateHeader(gameState) {
-            DOM.score.textContent = gameState.totalScore;
-            DOM.level.textContent = gameState.currentLevel;
-            DOM.streak.textContent = gameState.streak;
-            DOM.hintsRemaining.textContent = gameState.hintsRemaining;
-        }
-
-        function displayQuestion(question) {
-            DOM.question.textContent = question;
-        }
-
-        function showFeedback(isCorrect, correctAnswer) {
-            if (isCorrect) {
-                DOM.feedback.textContent = 'Excellent!';
-                DOM.feedback.className = 'alert alert-success';
-            } else {
-                DOM.feedback.textContent = `Not quite! The correct answer is ${correctAnswer}.`;
-                DOM.feedback.className = 'alert alert-warning';
-            }
-        }
-
-        function clearAnswerInput() {
-            DOM.answer.value = '';
-        }
-
-        function focusAnswerInput() {
-            DOM.answer.focus();
-        }
-
-        function renderLevelSelect(unlockedLevels) {
-            DOM.levelGrid.innerHTML = '';
-            for (let i = 1; i <= LevelManager.TOTAL_LEVELS; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.className = 'btn level-btn';
-                if (unlockedLevels.includes(i)) {
-                    button.classList.add('btn-success');
-                    button.disabled = false;
-                } else {
-                    button.classList.add('btn-secondary');
-                    button.disabled = true;
-                }
-                DOM.levelGrid.appendChild(button);
-            }
-        }
-
-        function renderAchievements(earnedBadges) {
-            DOM.achievementsGrid.innerHTML = '';
-            AchievementManager.achievements.forEach(ach => {
-                const earned = earnedBadges.includes(ach.id);
-                const badgeEl = document.createElement('div');
-                badgeEl.className = `col-md-4 badge-container text-center ${earned ? 'text-warning' : 'text-muted'}`;
-                badgeEl.innerHTML = `
-                    <div class="badge-icon">${earned ? '🏆' : '🔒'}</div>
-                    <h5>${ach.name}</h5>
-                    <p>${ach.description}</p>
-                `;
-                DOM.achievementsGrid.appendChild(badgeEl);
-            });
-        }
-
-        function showScreen(screenId) {
-            [DOM.gameScreen, DOM.levelSelectScreen, DOM.achievementsScreen, DOM.settingsScreen].forEach(screen => {
-                screen.classList.add('d-none');
-            });
-            document.getElementById(screenId).classList.remove('d-none');
-        }
-
-        function showNotification(message) {
-            DOM.notification.textContent = message;
-            DOM.notification.classList.remove('d-none');
-            setTimeout(() => {
-                DOM.notification.classList.add('d-none');
-            }, 3000);
-        }
-
-        return {
-            DOM,
-            updateHeader,
-            displayQuestion,
-            showFeedback,
-            clearAnswerInput,
-            focusAnswerInput,
-            renderLevelSelect,
-            renderAchievements,
-            showScreen,
-            showNotification
-        };
-    })();
-
-    /**
-     * Game Initialization
-     */
-    document.addEventListener('DOMContentLoaded', function() {
-        let currentQuestion;
-
-        function newQuestion() {
-            let gameState = GameState.getState();
-            if (gameState.totalProblemsAttempted > 0 && gameState.totalProblemsAttempted % 15 === 0) {
-                const oldUnlockedLevels = [...gameState.unlockedLevels];
-                LevelManager.checkLevelUnlock(gameState);
-                const newUnlockedLevels = gameState.unlockedLevels;
-
-                let message = `Level ${gameState.currentLevel} complete!`;
-                if (newUnlockedLevels.length > oldUnlockedLevels.length) {
-                    message += ` You've unlocked level ${newUnlockedLevels[newUnlockedLevels.length - 1]}!`;
-                }
-                UIController.showNotification(message);
-
-                const newBadges = AchievementManager.checkAchievements(gameState);
-                if (newBadges.length > 0) {
-                    UIController.showNotification(`New badge unlocked: ${newBadges.map(b => b.name).join(', ')}`);
-                }
-
-                gameState.totalProblemsAttempted = 0;
-                gameState.totalCorrectAnswers = 0;
-            }
-
-            const level = gameState.currentLevel;
-            currentQuestion = QuestionGenerator.generateQuestion(level);
-            UIController.displayQuestion(currentQuestion.question);
-            UIController.clearAnswerInput();
-            UIController.focusAnswerInput();
-            UIController.feedback.textContent = '';
-            UIController.feedback.className = '';
-            GameState.setState(gameState);
-            UIController.updateHeader(gameState);
-        }
-
-        function checkAnswer() {
-            const userAnswer = parseInt(UIController.DOM.answer.value, 10);
-            if (isNaN(userAnswer)) {
-                return; // Ignore non-numeric input
-            }
-
-            const isCorrect = userAnswer === currentQuestion.answer;
-
-            let gameState = GameState.getState();
-            gameState.totalProblemsAttempted++;
-            if (isCorrect) {
-                gameState.totalCorrectAnswers++;
-            }
-
-            const { totalScore, streak } = ScoreManager.updateScore(gameState, isCorrect);
-            gameState.totalScore = totalScore;
-            gameState.streak = streak;
-            if (streak > gameState.highestStreak) {
-                gameState.highestStreak = streak;
-            }
-
-            GameState.setState(gameState);
-            StorageManager.saveGame(gameState);
-
-            UIController.updateHeader(gameState);
-            UIController.showFeedback(isCorrect, currentQuestion.answer);
-
-            setTimeout(() => {
-                newQuestion();
-            }, 2000); // 2-second delay as per REQ-FN-018
-        }
-
-        function useHint() {
-            let gameState = GameState.getState();
-            if (gameState.hintsRemaining > 0) {
-                gameState.hintsRemaining--;
-                const answerString = currentQuestion.answer.toString();
-                const hint = `The answer starts with ${answerString[0]}.`;
-                UIController.DOM.feedback.textContent = hint;
-                UIController.DOM.feedback.className = 'alert alert-info';
-                GameState.setState(gameState);
-                UIController.updateHeader(gameState);
-            }
-        }
-
-        function init() {
-            const savedData = StorageManager.loadGame();
-            if (savedData) {
-                GameState.setState(savedData);
-                const gameState = GameState.getState();
-                document.body.className = `font-${gameState.fontSize}`;
-                UIController.DOM.fontSize.value = gameState.fontSize;
-            }
-            UIController.updateHeader(GameState.getState());
-            newQuestion();
-        }
-
-        UIController.DOM.submit.addEventListener('click', checkAnswer);
-        UIController.DOM.answer.addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                checkAnswer();
-            }
-        });
-        UIController.DOM.hintBtn.addEventListener('click', useHint);
-
-        UIController.DOM.levelSelectBtn.addEventListener('click', () => {
-            UIController.renderLevelSelect(GameState.getState().unlockedLevels);
-            UIController.showScreen('level-select-screen');
         });
 
-        UIController.DOM.achievementsBtn.addEventListener('click', () => {
-            UIController.renderAchievements(GameState.getState().earnedBadges);
-            UIController.showScreen('achievements-screen');
+        document.querySelector(DOM.submitButton).addEventListener('click', checkAnswer);
+        document.querySelector(DOM.answerElement).addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAnswer();
         });
 
-        UIController.DOM.settingsBtn.addEventListener('click', () => {
-            UIController.showScreen('settings-screen');
-        });
-
-        // Add event listeners for level selection and settings
-        UIController.DOM.levelGrid.addEventListener('click', (e) => {
-            if (e.target.classList.contains('level-btn')) {
-                const level = parseInt(e.target.textContent, 10);
-                let gameState = GameState.getState();
-                gameState.currentLevel = level;
-                gameState.totalProblemsAttempted = 0;
-                gameState.totalCorrectAnswers = 0;
-                GameState.setState(gameState);
-                newQuestion();
-                UIController.showScreen('game-screen');
+        document.querySelector(DOM.levelListElement).addEventListener('click', (e) => {
+            if (e.target.matches('.list-group-item')) {
+                const level = parseInt(e.target.dataset.level);
+                GameState.setCurrentLevel(level);
+                UIController.updateLevel(level);
+                startNewRound();
+                UIController.showTab('home');
             }
         });
 
-        UIController.DOM.resetProgressBtn.addEventListener('click', () => {
+        document.querySelector(DOM.resetButton).addEventListener('click', () => {
             if (confirm('Are you sure you want to reset all your progress?')) {
-                StorageManager.resetProgress();
+                StorageManager.clearGameState();
                 location.reload();
             }
         });
 
-        UIController.DOM.fontSize.addEventListener('change', (e) => {
-            let gameState = GameState.getState();
-            gameState.fontSize = e.target.value;
-            document.body.className = `font-${gameState.fontSize}`;
-            GameState.setState(gameState);
+        document.querySelector(DOM.playerNameInput).addEventListener('change', (e) => {
+            GameState.setPlayerName(e.target.value);
+            StorageManager.saveGameState(GameState.getState());
         });
+    };
 
-        init();
-        console.log('Math Master game initialized!');
-    });
+    const startNewRound = () => {
+        const level = GameState.getCurrentLevel();
+        const question = QuestionGenerator.generateQuestion(level);
+        GameState.setCurrentQuestion(question);
+        UIController.displayQuestion(question);
+        StorageManager.saveGameState(GameState.getState());
+    };
 
-})();
+    const checkAnswer = () => {
+        const answerInput = document.querySelector(UIController.getDOMstrings().answerElement);
+        const submitButton = document.querySelector(UIController.getDOMstrings().submitButton);
+
+        if (answerInput.value === '') return; // Don't do anything if input is empty
+
+        const userAnswer = parseInt(answerInput.value);
+        const correctAnswer = GameState.getCurrentQuestion().answer;
+
+        if (userAnswer === correctAnswer) {
+            const newState = ScoreManager.correctAnswer(GameState.getState());
+            GameState.setState(newState);
+            UIController.showFeedback('Correct!', true);
+        } else {
+            const newState = ScoreManager.incorrectAnswer(GameState.getState());
+            GameState.setState(newState);
+            UIController.showFeedback(`Try again! The correct answer was ${correctAnswer}.`, false);
+        }
+
+        UIController.updateScore(GameState.getCurrentScore());
+
+        // Disable controls to prevent multiple submissions
+        answerInput.disabled = true;
+        submitButton.disabled = true;
+
+        setTimeout(() => {
+            startNewRound();
+            // Re-enable for next question
+            answerInput.disabled = false;
+            submitButton.disabled = false;
+            answerInput.focus();
+        }, 2000); // 2 second delay
+    };
+
+    const init = () => {
+        const savedState = StorageManager.loadGameState();
+        if (savedState) {
+            GameState.setState(savedState);
+        }
+
+        const levels = QuestionGenerator.getLevels();
+        GameState.setLevels(levels);
+        UIController.populateLevels(levels);
+
+        UIController.updateScore(GameState.getCurrentScore());
+        UIController.updateLevel(GameState.getCurrentLevel());
+        UIController.updateSettings(GameState.getCurrentLevel(), GameState.getCurrentScore(), GameState.getPlayerName());
+
+        UIController.showTab('home');
+        startNewRound();
+        setupEventListeners();
+    };
+
+    return {
+        init
+    };
+})(GameState, UIController, StorageManager, ScoreManager, QuestionGenerator);
+
+document.addEventListener('DOMContentLoaded', AppController.init);

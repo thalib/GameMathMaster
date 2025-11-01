@@ -4,87 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Master</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-
-    <header class="container mt-3">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <div class="row text-center">
-                    <div class="col">
-                        <h2>Score: <span id="score">0</span></h2>
-                    </div>
-                    <div class="col">
-                        <h2>Level: <span id="level">1</span></h2>
-                    </div>
-                    <div class="col">
-                        <h2>Streak: <span id="streak">0</span></h2>
-                    </div>
+    <header class="text-center py-3">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-link nav-btn" data-tab="home">
+                        <i class="bi-house-door-fill fs-2"></i>
+                        <div>Home</div>
+                    </button>
                 </div>
-            </div>
-            <div class="col-md-4 text-end">
-                <button id="level-select-btn" class="btn btn-info">Levels</button>
-                <button id="achievements-btn" class="btn btn-warning">Badges</button>
-                <button id="settings-btn" class="btn btn-secondary">Settings</button>
+                <div class="col">
+                    <button class="btn btn-link nav-btn" data-tab="levels">
+                        <i class="bi-list-ol fs-2"></i>
+                        <div>Levels</div>
+                    </button>
+                </div>
+                <div class="col">
+                    <button class="btn btn-link nav-btn" data-tab="settings">
+                        <i class="bi-gear-fill fs-2"></i>
+                        <div>Settings</div>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
-    <main id="game-screen" class="container mt-5">
-        <div class="row">
-            <div class="col-md-6 offset-md-3 text-center">
-                <div id="question-container">
-                    <p id="question" class="fs-1"></p>
+    <main class="container py-4">
+        <!-- Home Tab -->
+        <div id="home" class="tab-content active">
+            <div class="row text-center mb-4">
+                <div class="col">
+                    <span class="fs-4">Score: <span id="current-score">0</span></span>
                 </div>
-                <div class="mt-3">
-                    <input type="text" id="answer" class="form-control form-control-lg text-center" autofocus>
-                </div>
-                <button id="submit" class="btn btn-primary btn-lg mt-3">Submit</button>
-                <div id="feedback" class="mt-3"></div>
-                <div class="mt-3">
-                    <button id="hint-btn" class="btn btn-light">Hint (<span id="hints-remaining">2</span>)</button>
+                <div class="col">
+                    <span class="fs-4">Level: <span id="current-level">1</span></span>
                 </div>
             </div>
+            <div class="question-container text-center">
+                <div class="card p-4 shadow-lg">
+                    <div id="question" class="fs-1 fw-bold mb-4" style="height: 100px;">
+                        <!-- Question will be dynamically rendered here -->
+                    </div>
+                    <div class="answer-form-container mx-auto">
+                        <input type="number" id="answer" class="form-control form-control-lg mb-3 text-center" placeholder="?">
+                        <button id="submit-answer" class="btn btn-primary btn-lg w-100">Submit</button>
+                    </div>
+                </div>
+                <div id="feedback" class="mt-3 fs-4"></div>
+            </div>
+        </div>
+
+        <!-- Levels Tab -->
+        <div id="levels" class="tab-content" style="display: none;">
+            <h2 class="text-center mb-4">Select a Level</h2>
+            <div id="level-list" class="list-group">
+                <!-- Levels will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content" style="display: none;">
+            <h2 class="text-center mb-4">Settings</h2>
+            <div class="mb-3">
+                <label for="player-name" class="form-label">Player Name</label>
+                <input type="text" id="player-name" class="form-control">
+            </div>
+            <div class="mb-3">
+                <p class="fs-5">Current Level: <span id="settings-level">1</span></p>
+                <p class="fs-5">Current Score: <span id="settings-score">0</span></p>
+            </div>
+            <button id="reset-progress" class="btn btn-danger">Reset Progress</button>
         </div>
     </main>
 
-    <section id="level-select-screen" class="container mt-5 d-none">
-        <h2 class="text-center">Select a Level</h2>
-        <div id="level-grid" class="row">
-            <!-- Level buttons will be generated here -->
-        </div>
-    </section>
+    <footer class="text-center py-3 mt-auto">
+        <p>Made with ❤️ by Devnodes.in</p>
+    </footer>
 
-    <section id="achievements-screen" class="container mt-5 d-none">
-        <h2 class="text-center">Achievements</h2>
-        <div id="achievements-grid" class="row">
-            <!-- Achievement badges will be displayed here -->
-        </div>
-    </section>
-
-    <div id="notification" class="alert alert-info d-none" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"></div>
-    <section id="settings-screen" class="container mt-5 d-none">
-        <h2 class="text-center">Settings</h2>
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="mt-3">
-                    <label for="font-size" class="form-label">Font Size</label>
-                    <select id="font-size" class="form-select">
-                        <option value="small">Small</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="large">Large</option>
-                    </select>
-                </div>
-                <div class="mt-3 text-center">
-                    <button id="reset-progress-btn" class="btn btn-danger">Reset All Progress</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="scripts.js"></script>
 </body>
 </html>
