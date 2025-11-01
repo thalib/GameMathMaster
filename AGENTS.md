@@ -6,9 +6,17 @@ Your primary goal is to produce code that is **simple, readable, and easy for hu
 
 ## Directory Structure
 
+s
 - `index.html`
 - `scripts.js`
 - `main.css`
+
+```bash
+src\
+├───index.html
+├───scripts.js
+└───main.css
+```
 
 ## Guiding Principles
 
@@ -19,7 +27,7 @@ Your primary goal is to produce code that is **simple, readable, and easy for hu
 
 ## Code Architecture
 
-As specified in `REQ-NFR-001`, the code SHALL be organized into logical modules. Adhere to the following structure:
+The code should be organized into logical modules. Adhere to the following structure:
 
 - **`GameState`:** Manages all application state, including the current score, level, streak, and player progress. It should be the single source of truth for all data.
 - **`QuestionGenerator`:** Responsible for creating and returning new math problems based on the current level and difficulty rules in `SPEC.md`.
