@@ -78,6 +78,17 @@ AI coding agents MUST refer to these files for all visual and interaction detail
   - Submit button
 - **All UI/UX elements MUST match the design screenshots referenced above.**
 
+## Animation 
+
+The system SHALL display a celebratory animation for correct answers using only CSS3 animations and DOM manipulation.
+
+- The animation MUST be visually appealing to children (e.g., confetti burst, stars, sparkles, or bounce effect).
+- The animation MUST use Bootstrap utility classes for layout and color wherever possible.
+- All custom animation styles MUST be defined in main.css.
+- The animation MUST be triggered by adding/removing CSS classes via JavaScript in scripts.js.
+- The animation MUST complete within 1–2 seconds to maintain gameplay flow.
+- **Exception:** You are free to use external libraries for this animation if it is recommended, rather than reinventing the wheel.
+
 ## Technical Constraints
 
 - Fully mobile-first, responsive design (320px+)
