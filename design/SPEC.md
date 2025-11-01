@@ -78,6 +78,15 @@ AI coding agents MUST refer to these files for all visual and interaction detail
   - Submit button
 - **All UI/UX elements MUST match the design screenshots referenced above.**
 
+### Answer Handling Requirements
+
+**On incorrect answer follow below rules**
+- The system SHALL display a wrong answer message as per current implementation.
+- The system SHALL NOT automatically advance to the next question.
+- The system SHALL show a `Next <i class="bi bi-arrow-right"></i>` button below the wrong answer message.
+- Only when the player clicks this button SHALL the system advance to the next question.
+- The wrong answer message SHOULD disappear only after the user clicks the "Next" button.
+
 ## Animation 
 
 The system SHALL display a celebratory animation for correct answers using only CSS3 animations and DOM manipulation.
