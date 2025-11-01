@@ -62,9 +62,8 @@ body {
 .question-multiline {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   font-family: "Courier New", Courier, monospace;
-  padding-right: 20%;
 }
 
 .question-multiline .operand {
@@ -74,7 +73,6 @@ body {
 .question-multiline .operator-line {
   display: flex;
   align-items: center;
-  width: 100%;
 }
 
 .question-multiline .operator {
@@ -83,7 +81,6 @@ body {
 
 .question-multiline .bottom-operand {
   border-bottom: 2px solid #000;
-  width: 100%;
   text-align: right;
 }
 
