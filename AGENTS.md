@@ -1,6 +1,6 @@
 # AI Agent Coding Guidelines for Math Master
 
-This document provides explicit coding guidelines, constraints, and best practices for AI coding agents working on the Math Master educational game project. All development MUST strictly follow the requirements and specifications defined in **[SPEC.md](./SPEC.md)**, which is the single source of truth for all project requirements.
+This document provides explicit coding guidelines, constraints, and best practices for AI coding agents working on the Math Master educational game project. All development MUST strictly follow the requirements and specifications defined in **[design/SPEC.md](./design/SPEC.md)**, which is the single source of truth for all project requirements.
 
 Your primary goal is to produce code that is **simple, readable, and easy for humans to maintain.**
 
