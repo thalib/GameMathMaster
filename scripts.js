@@ -88,20 +88,23 @@ const UIController = (() => {
       const questionEl = document.querySelector(DOMstrings.questionElement);
       questionEl.innerHTML = ""; // Clear previous content
 
-      // Use multi-line format for 2-operand addition and subtraction
+      // Use multi-line format for addition and subtraction
       if (
-        (question.operator === "+" || question.operator === "−") &&
-        question.operands.length === 2
+        (question.operator === "+" || question.operator === "−")
       ) {
-        const [num1, num2] = question.operands;
-        const html = `
-                    <div class="question-multiline">
-                        <span class="operand">${num1}</span>
-                        <div class="operator-line">
-                            <span class="operator">${question.operator}</span>
-                            <span class="bottom-operand">${num2}</span>
-                        </div>
-                    </div>`;
+        const operands = question.operands;
+        let html = '<div class="question-multiline">';
+        // Add all but the last operand
+        for (let i = 0; i < operands.length - 1; i++) {
+          html += `<div class="operand">${operands[i]}</div>`;
+        }
+        // Add the last operand with the operator and the line
+        const lastOperand = operands[operands.length - 1];
+        html += `<div class="operator-line">
+                    <span class="operator">${question.operator}</span>
+                    <span class="bottom-operand">${lastOperand}</span>
+                 </div>`;
+        html += '</div>';
         questionEl.innerHTML = html;
       } else {
         // Use single-line for everything else
@@ -300,6 +303,24 @@ const QuestionGenerator = (() => {
       digits: [[3, 4], 1],
       numbers: 2,
     },
+    {
+        name: "Multiplication: 2 digit × 3-4 numbers",
+        type: "mul",
+        digits: 2,
+        numbers: [3, 4],
+    },
+    {
+        name: "Multiplication: 3-4 digit × 2 numbers",
+        type: "mul",
+        digits: [3, 4],
+        numbers: 2,
+    },
+    {
+        name: "Multiplication: 3-4 digit × 3-4 numbers",
+        type: "mul",
+        digits: [3, 4],
+        numbers: [3, 4],
+    },
     { name: "Division: 1 digit ÷ 1 digit", type: "div", digits: 1, numbers: 2 },
     {
       name: "Division: 2 digit ÷ 1 digit",
@@ -362,14 +383,13 @@ const QuestionGenerator = (() => {
           break;
 
         case "mul":
-          const digits1 = Array.isArray(level.digits)
-            ? level.digits[0]
-            : level.digits;
-          const digits2 = Array.isArray(level.digits)
-            ? level.digits[1]
-            : level.digits;
-          operands = [genNum(digits1), genNum(digits2)];
-          answer = operands[0] * operands[1];
+          for (let i = 0; i < numOperands; i++) {
+            const digits = Array.isArray(level.digits)
+              ? level.digits[i] || level.digits[0]
+              : level.digits;
+            operands.push(genNum(digits));
+          }
+          answer = operands.reduce((prod, num) => prod * num, 1);
           break;
 
         case "div":
