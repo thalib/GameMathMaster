@@ -577,4 +577,54 @@ const AppController = ((
   };
 })(GameState, UIController, StorageManager, ScoreManager, QuestionGenerator);
 
-document.addEventListener("DOMContentLoaded", AppController.init);
+const AppInstaller = (() => {
+  let deferredPrompt;
+  const installButton = document.querySelector('#install-app');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Update UI notify the user they can install the PWA
+    if (installButton) {
+      installButton.style.display = 'block';
+    }
+  });
+
+  const installApp = () => {
+    if (!deferredPrompt) {
+      return;
+    }
+    // Hide the app provided install promotion
+    if (installButton) {
+      installButton.style.display = 'none';
+    }
+    // Show the install prompt
+    deferredPrompt.prompt();
+    // Wait for the user to respond to the prompt
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+      deferredPrompt = null;
+    });
+  };
+
+  const init = () => {
+    if (installButton) {
+      installButton.addEventListener('click', installApp);
+    }
+  };
+
+  return {
+    init,
+  };
+})();
+
+document.addEventListener("DOMContentLoaded", () => {
+  AppController.init();
+  AppInstaller.init();
+});
