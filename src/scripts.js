@@ -120,7 +120,6 @@ const UIController = (() => {
       feedbackEl.textContent = message;
       feedbackEl.className = "mt-3 fs-4";
       feedbackEl.classList.add(isCorrect ? "text-success" : "text-danger");
-      setTimeout(() => (feedbackEl.textContent = ""), 2000);
     },
     populateLevels: (levels) => {
       const levelListEl = document.querySelector(DOMstrings.levelListElement);
@@ -180,16 +179,20 @@ const UIController = (() => {
         score;
       document.querySelector(DOMstrings.playerNameInput).value = name;
     },
+    clearFeedback: () => {
+      document.querySelector(DOMstrings.feedbackElement).textContent = "";
+    },
     clearAnswer: () => {
       document.querySelector(DOMstrings.answerElement).value = "";
     },
     setButtonState: (state) => {
         const btn = document.querySelector(DOMstrings.submitButton);
+        btn.dataset.state = state;
         if (state === 'submit') {
             btn.innerHTML = 'Submit <i class="bi bi-arrow-return-left"></i>';
             btn.disabled = false;
         } else if (state === 'next') {
-            btn.textContent = 'Next ->';
+            btn.innerHTML = 'Next <i class="bi bi-arrow-right"></i>';
             btn.disabled = false;
         } else if (state === 'disabled') {
             btn.disabled = true;
@@ -486,15 +489,15 @@ const AppController = ((
       UIController.getDOMstrings().submitButton
     );
 
-    // If button is in "Next ->" state, start a new round.
-    if (submitButton.textContent === "Next ->") {
+    // If button is in "Next" state, start a new round.
+    if (submitButton.dataset.state === "next") {
       startNewRound();
-      UIController.setButtonState('submit');
+      UIController.setButtonState("submit");
+      UIController.clearFeedback();
       answerInput.disabled = false;
       answerInput.focus();
       return;
     }
-
 
     if (answerInput.value === "") return; // Don't do anything if input is empty
 
@@ -524,6 +527,7 @@ const AppController = ((
       setTimeout(() => {
         startNewRound();
         // Re-enable for next question
+        UIController.clearFeedback();
         answerInput.disabled = false;
         UIController.setButtonState('submit');
         answerInput.focus();
