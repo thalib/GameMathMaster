@@ -1,135 +1,135 @@
 /* General Body Styles */
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-color: #f0f8ff; /* Lighter, kid-friendly background */
-    font-size: 1.2rem; /* Larger base font size */
+  min-height: 100vh;
+  font-size: 1.2rem; /* Larger base font size */
 }
 
-main {
-    flex: 1;
-    max-width: 480px;
-    margin: 0 auto;
+body {
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 /* Header Navigation Tabs */
 .nav-btn {
-    text-decoration: none;
-    color: #6c757d; /* Muted gray for inactive tabs */
-    transition: color 0.3s ease, transform 0.3s ease;
+  text-decoration: none;
+  color: #6c757d; /* Muted gray for inactive tabs */
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .nav-btn:hover {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
 
-.nav-btn[data-tab="home"].active { color: #0d6efd; /* Blue for Home */ }
-.nav-btn[data-tab="levels"].active { color: #198754; /* Green for Levels */ }
-.nav-btn[data-tab="settings"].active { color: #fd7e14; /* Orange for Settings */ }
-
+.nav-btn[data-tab="home"].active {
+  color: #0d6efd; /* Blue for Home */
+}
+.nav-btn[data-tab="levels"].active {
+  color: #198754; /* Green for Levels */
+}
+.nav-btn[data-tab="settings"].active {
+  color: #fd7e14; /* Orange for Settings */
+}
 
 .nav-btn.active {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 /* Question & Answer Card */
 .question-container .card {
-    border-radius: 20px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    border: none;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border: none;
 }
 
 /* Container for the answer input and button */
 .answer-form-container {
-    max-width: 250px;
+  max-width: 250px;
 }
 
 /* Style for the submit button */
 #submit-answer {
-    border-radius: 15px; /* Rounded corners */
-    background-color: #28a745; /* Cheerful green */
-    border: none;
-    font-weight: bold;
+  border-radius: 15px; /* Rounded corners */
+  background-color: #28a745; /* Cheerful green */
+  border: none;
+  font-weight: bold;
 }
 
 #submit-answer:hover {
-    background-color: #218838; /* Darker green on hover */
+  background-color: #218838; /* Darker green on hover */
 }
 
 /* Multi-line question format */
 .question-multiline {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-family: 'Courier New', Courier, monospace;
-    padding-right: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: "Courier New", Courier, monospace;
+  padding-right: 20%;
 }
 
 .question-multiline .operand {
-    display: block;
+  display: block;
 }
 
 .question-multiline .operator-line {
-    display: flex;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .question-multiline .operator {
-    margin-right: 10px;
+  margin-right: 10px;
 }
 
 .question-multiline .bottom-operand {
-    border-bottom: 2px solid #000;
-    width: 100%;
-    text-align: right;
+  border-bottom: 2px solid #000;
+  width: 100%;
+  text-align: right;
 }
-
 
 /* Levels Tab */
 .list-group-item {
-    cursor: pointer;
-    border-radius: 10px !important; /* Rounded corners for level items */
-    margin-bottom: 5px;
-    font-weight: 500;
+  cursor: pointer;
+  border-radius: 10px !important; /* Rounded corners for level items */
+  margin-bottom: 5px;
+  font-weight: 500;
 }
 
 .list-group-item:hover {
-    background-color: #e9ecef;
+  background-color: #e9ecef;
 }
 
 .level-item {
-    border-radius: 12px !important;
-    transition: transform 0.2s ease-in-out;
+  border-radius: 12px !important;
+  transition: transform 0.2s ease-in-out;
 }
 
 .level-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .level-icon-container {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    font-size: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 1.5rem;
 }
 
 .list-group-item.active {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
 }
 
 /* General Feedback Text */
 #feedback {
-    min-height: 30px;
-    font-weight: bold;
+  min-height: 30px;
+  font-weight: bold;
 }
 
 .danger-zone {
-    border: 2px solid #dc3545;
-    border-radius: 10px;
-    padding: 15px;
-    background-color: #f8d7da;
+  border: 2px solid #dc3545;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #f8d7da;
 }
