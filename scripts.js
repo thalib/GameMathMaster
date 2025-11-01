@@ -56,7 +56,8 @@ const UIController = (() => {
         settingsLevelElement: '#settings-level',
         settingsScoreElement: '#settings-score',
         playerNameInput: '#player-name',
-        resetButton: '#reset-progress'
+        resetButton: '#reset-progress',
+        saveSettingsButton: '#save-settings'
     };
 
     return {
@@ -113,14 +114,49 @@ const UIController = (() => {
         populateLevels: (levels) => {
             const levelListEl = document.querySelector(DOMstrings.levelListElement);
             levelListEl.innerHTML = '';
-            levels.forEach((level, index) => {
-                const levelEl = document.createElement('a');
-                levelEl.href = '#';
-                levelEl.className = 'list-group-item list-group-item-action';
-                levelEl.dataset.level = index + 1;
-                levelEl.textContent = level.name;
-                levelListEl.appendChild(levelEl);
-            });
+
+            const groupedLevels = levels.reduce((acc, level, index) => {
+                const [group] = level.name.split(':');
+                if (!acc[group]) {
+                    acc[group] = [];
+                }
+                acc[group].push({ ...level, originalIndex: index });
+                return acc;
+            }, {});
+
+            const icons = {
+                'Addition': 'plus-lg',
+                'Subtraction': 'dash-lg',
+                'Multiplication': 'x-lg',
+                'Division': 'percent'
+            };
+            const colors = {
+                'Addition': 'bg-primary',
+                'Subtraction': 'bg-success',
+                'Multiplication': 'bg-warning',
+                'Division': 'bg-info'
+            };
+
+            let html = '';
+            for (const groupName in groupedLevels) {
+                html += `<h3 class="mt-4">${groupName}</h3>`;
+                groupedLevels[groupName].forEach(level => {
+                    const [_, description] = level.name.split(': ');
+
+                    html += `
+                        <a href="#" class="level-item list-group-item list-group-item-action d-flex align-items-center mb-2" data-level="${level.originalIndex + 1}">
+                            <div class="level-icon-container ${colors[groupName]} text-white me-3 d-flex align-items-center justify-content-center">
+                                <i class="bi bi-${icons[groupName]}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="mb-0 fw-bold">${description}</p>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                    `;
+                });
+            }
+            levelListEl.innerHTML = html;
         },
         updateSettings: (level, score, name) => {
             document.querySelector(DOMstrings.settingsLevelElement).textContent = level;
@@ -265,8 +301,10 @@ const AppController = ((GameState, UIController, StorageManager, ScoreManager, Q
         });
 
         document.querySelector(DOM.levelListElement).addEventListener('click', (e) => {
-            if (e.target.matches('.list-group-item')) {
-                const level = parseInt(e.target.dataset.level);
+            const levelItem = e.target.closest('.level-item');
+            if (levelItem) {
+                e.preventDefault();
+                const level = parseInt(levelItem.dataset.level);
                 GameState.setCurrentLevel(level);
                 UIController.updateLevel(level);
                 startNewRound();
@@ -281,9 +319,11 @@ const AppController = ((GameState, UIController, StorageManager, ScoreManager, Q
             }
         });
 
-        document.querySelector(DOM.playerNameInput).addEventListener('change', (e) => {
-            GameState.setPlayerName(e.target.value);
+        document.querySelector(DOM.saveSettingsButton).addEventListener('click', () => {
+            const playerName = document.querySelector(DOM.playerNameInput).value;
+            GameState.setPlayerName(playerName);
             StorageManager.saveGameState(GameState.getState());
+            alert('Settings saved!');
         });
     };
 
