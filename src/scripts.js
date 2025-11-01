@@ -492,7 +492,7 @@ const AppController = ((
       GameState.setState(newState);
       const message = incorrectMessages[Math.floor(Math.random() * incorrectMessages.length)];
       UIController.showFeedback(
-        `${message} The correct answer was ${correctAnswer}.`,
+        `${message} Correct Answer: ${correctAnswer}.`,
         false
       );
     }
