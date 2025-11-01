@@ -230,12 +230,6 @@ const QuestionGenerator = (() => {
       numbers: 2,
     },
     {
-      name: "Addition: 2 digit × 3-4 numbers",
-      type: "add",
-      digits: 2,
-      numbers: [3, 4],
-    },
-    {
       name: "Addition: 3-4 digit × 2 numbers",
       type: "add",
       digits: [3, 4],
@@ -245,6 +239,12 @@ const QuestionGenerator = (() => {
       name: "Addition: 3-4 digit × 3-4 numbers",
       type: "add",
       digits: [3, 4],
+      numbers: [3, 4],
+    },
+    {
+      name: "Addition: 2 digit × 3-4 numbers",
+      type: "add",
+      digits: 2,
       numbers: [3, 4],
     },
     {
