@@ -9,6 +9,8 @@ body {
 
 main {
     flex: 1;
+    max-width: 480px;
+    margin: 0 auto;
 }
 
 /* Header Navigation Tabs */
@@ -97,6 +99,23 @@ main {
     background-color: #e9ecef;
 }
 
+.level-item {
+    border-radius: 12px !important;
+    transition: transform 0.2s ease-in-out;
+}
+
+.level-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.level-icon-container {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    font-size: 1.5rem;
+}
+
 .list-group-item.active {
     background-color: #0d6efd;
     border-color: #0d6efd;
@@ -106,4 +125,11 @@ main {
 #feedback {
     min-height: 30px;
     font-weight: bold;
+}
+
+.danger-zone {
+    border: 2px solid #dc3545;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #f8d7da;
 }
